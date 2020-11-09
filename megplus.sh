@@ -80,50 +80,50 @@ elif [[ $1 == '-s' ]] && [[ $2 != '' ]]; then
 	targets="domains-plus"
 	echo
 else
-	cat "$1"" | sed "-E 's#https?://##I' | sed -E 's#/.*##' | sed -E 's#^\*\.?##' | sed -E 's#,#\n#g' | tr '[:upper:]' '[:lower:]' | uniq | sed -e 's/^/https:\/\//' > "$1-plus"
+	cat "$1" | sed -E 's#https?://##I' | sed -E 's#/.*##' | sed -E 's#^\*\.?##' | sed -E 's#,#\n#g' | tr '[:upper:]' '[:lower:]' | uniq | sed -e 's/^/https:\/\//' > "$1-plus"
 	targets="$1-plus"
 fi
-
-printf "${GREEN}[+]${END} Finding configuration files.\\n"
-meg --delay 100 lists/configfiles "$targets" &>/dev/null
-grep -Hnri "200 ok" out/
-echo
-
-printf "${GREEN}[+]${END} Finding interesting strings.\\n"
-./findstrings.sh out/
-echo
-
-printf "${GREEN}[+]${END} Finding AWS/DigitalOcean/Azure buckets.\\n"
-./findbuckets.sh out/
-echo
-
-printf "${GREEN}[+]${END} Finding open redirects.\\n"
-meg --delay 100 lists/openredirects "$targets" &>/dev/null
-grep --color -HnriE '< location: (https?:)?[/\\]{2,}example.com' out/
-echo
-
-printf "${GREEN}[+]${END} Finding CRLF injection.\\n"
-meg --delay 100 lists/crlfinjection "$targets" &>/dev/null
-grep --color -HnriE "< Set-Cookie: ?crlf"
-echo
-
-printf "${GREEN}[+]${END} Finding CORS misconfigurations.\\n"
-./cors.sh "$targets"
-echo
-
-printf "${GREEN}[+]${END} Finding path-based XSS.\\n"
-meg /bounty%3c%22pls "$targets"
-grep --color -Hrie '(bounty<|"pls)' out/
-echo
 
 printf "${GREEN}[+]${END} Searching for (sub)domain takeovers.\\n"
 ./findtakeovers.sh
 echo
 
-printf "${GREEN}[+]${END} Running waybackurls.\\n"
-cat "$targets" | waybackurls > out/urls
-printf "${YELLOW}[i]${END} Output in './out/urls' file.\\n"
-echo
+# printf "${GREEN}[+]${END} Finding AWS/DigitalOcean/Azure buckets.\\n"
+# ./findbuckets.sh out/
+# echo
+
+# printf "${GREEN}[+]${END} Finding path-based XSS.\\n"
+# meg /bounty%3c%22pls "$targets"
+# grep --color -Hrie '(bounty<|"pls)' out/
+# echo
+
+# printf "${GREEN}[+]${END} Finding interesting strings.\\n"
+# ./findstrings.sh out/
+# echo
+
+# printf "${GREEN}[+]${END} Finding open redirects.\\n"
+# meg --delay 100 lists/openredirects "$targets" &>/dev/null
+# grep --color -HnriE '< location: (https?:)?[/\\]{2,}example.com' out/
+# echo
+
+# printf "${GREEN}[+]${END} Finding CRLF injection.\\n"
+# meg --delay 100 lists/crlfinjection "$targets" &>/dev/null
+# grep --color -HnriE "< Set-Cookie: ?crlf"
+# echo
+
+# printf "${GREEN}[+]${END} Finding CORS misconfigurations.\\n"
+# ./cors.sh "$targets"
+# echo
+
+# printf "${GREEN}[+]${END} Finding configuration files.\\n"
+# meg --delay 100 lists/configfiles "$targets" &>/dev/null
+# grep -Hnri "200 ok" out/
+# echo
+
+# printf "${GREEN}[+]${END} Running waybackurls.\\n"
+# cat "$targets" | waybackurls > out/urls
+# printf "${YELLOW}[i]${END} Output in './out/urls' file.\\n"
+# echo
 
 # You can use gvfs-trash too.
 # gio trash output
